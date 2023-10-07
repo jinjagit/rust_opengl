@@ -1,28 +1,83 @@
+#[macro_use]
 extern crate glium;
 
+mod shape;
+mod vertex_shader;
+mod fragment_shader;
+
 fn main() {
-    let event_loop = glium::glutin::event_loop::EventLoop::new();
+    #[allow(unused_imports)]
+    use glium::{glutin, Surface};
 
-    let wb = glium::glutin::window::WindowBuilder::new()
-        .with_inner_size(glium::glutin::dpi::LogicalSize::new(800.0, 600.0))
-        .with_title("Hello world");
-
-    let cb = glium::glutin::ContextBuilder::new();
-
-    // You will get a warning on the next line but we will fix this later on
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
+    let shape = shape::shape();
+
+    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
+    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+
+    const TARGET_FPS: u64 = 60;
+
+    // Using &String here, not &str as in example.
+    let vertex_shader_src = vertex_shader::vertex_shader_src();
+    let fragment_shader_src = fragment_shader::fragment_shader_src();
+
+    let program = glium::Program::from_source(&display, vertex_shader_src.as_str(), fragment_shader_src.as_str(), None).unwrap();
+
+    let mut t: f32 = 0.0;
+    let mut delta: f32 = 0.02;
+
     event_loop.run(move |event, _, control_flow| {
+        let start_time = std::time::Instant::now();
 
         match event {
-            glium::glutin::event::Event::WindowEvent { event, .. } => match event {
-                glium::glutin::event::WindowEvent::CloseRequested => {
-                    *control_flow = glium::glutin::event_loop::ControlFlow::Exit;
+            glutin::event::Event::WindowEvent { event, .. } => match event {
+                glutin::event::WindowEvent::CloseRequested => {
+                    *control_flow = glutin::event_loop::ControlFlow::Exit;
                     return;
                 },
                 _ => return,
             },
+            glutin::event::Event::NewEvents(cause) => match cause {
+                glutin::event::StartCause::ResumeTimeReached { .. } => (),
+                glutin::event::StartCause::Init => (),
+                _ => return,
+            },
             _ => return,
         }
+
+        let elapsed_time = std::time::Instant::now().duration_since(start_time).as_millis() as u64;
+
+        let wait_millis = match 1000 / TARGET_FPS >= elapsed_time {
+            true => 1000 / TARGET_FPS - elapsed_time,
+            false => 0
+        };
+        let new_inst = start_time + std::time::Duration::from_millis(wait_millis);
+
+        *control_flow =  glutin::event_loop::ControlFlow::WaitUntil(new_inst);
+
+        t += delta;
+        if (t > std::f32::consts::PI) || (t < -std::f32::consts::PI) {
+            delta = -delta;
+        }
+
+        let mut target = display.draw();
+        target.clear_color(0.0, 0.0, 0.0, 1.0);
+
+        let uniforms = uniform! {
+            matrix: [
+                [ t.cos(), t.sin(), 0.0, 0.0],
+                [-t.sin(), t.cos(), 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0f32],
+            ]
+        };
+
+        target.draw(&vertex_buffer, &indices, &program, &uniforms,
+                    &Default::default()).unwrap();
+        target.finish().unwrap();
     });
 }
