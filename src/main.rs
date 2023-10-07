@@ -1,10 +1,7 @@
 #[macro_use]
 extern crate glium;
 
-#[derive(Copy, Clone)]
-struct Vertex {
-    position: [f32; 2],
-}
+mod shape;
 
 fn main() {
     #[allow(unused_imports)]
@@ -15,9 +12,7 @@ fn main() {
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
-    implement_vertex!(Vertex, position);
-
-    let shape = shape();
+    let shape = shape::shape();
 
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
@@ -102,13 +97,4 @@ fn main() {
                     &Default::default()).unwrap();
         target.finish().unwrap();
     });
-}
-
-fn shape() -> Vec<Vertex> {
-    let vertex1 = Vertex { position: [0.0, 0.0] };
-    let vertex2 = Vertex { position: [0.0, 1.0] };
-    let vertex3 = Vertex { position: [1.0, 1.0] };
-    let vertex4 = Vertex { position: [1.0, 0.0] };
-    
-    vec![vertex1, vertex2, vertex3, vertex1, vertex3, vertex4]
 }
