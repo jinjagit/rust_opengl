@@ -16,7 +16,8 @@ fn main() {
     let wb = glutin::window::WindowBuilder::new();
     let window = wb.clone()
         .with_inner_size(glutin::dpi::LogicalSize::new(window_side, window_side))
-        .with_position(glutin::dpi::LogicalPosition::new(window_x_offset, 0.0));
+        .with_position(glutin::dpi::LogicalPosition::new(window_x_offset, 0.0))
+        .with_title("OpenGL");
 
     let context = glutin::ContextBuilder::new();
     let event_loop = glutin::event_loop::EventLoop::new();
