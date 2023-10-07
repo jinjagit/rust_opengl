@@ -3,12 +3,29 @@ extern crate glium;
 
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
+// use std::process::Command;
 
 mod shape;
 mod vertex_shader;
 mod fragment_shader;
 
 fn main() {
+    // let output = if cfg!(target_os = "windows") {
+    //     Command::new("cmd")
+    //             .args(["/C", "echo hello"])
+    //             .output()
+    //             .expect("failed to execute process")
+    // } else {
+    //     Command::new("sh")
+    //             .arg("-c")
+    //             .arg("echo hello")
+    //             .output()
+    //             .expect("failed to execute process")
+    // };
+
+    // let hello = output.stdout;
+    // println!("{}", String::from_utf8_lossy(&hello));
+
     // Size and position are custom hardcoded values for my screen.
     // Native 4k
     // let window_side = 2106.0;
