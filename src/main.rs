@@ -9,14 +9,17 @@ mod vertex_shader;
 mod fragment_shader;
 
 fn main() {
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
-    
     // Size and position are custom hardcoded values for my screen. DPI seems off as sizes below my screen resolution.
+    let window_side = 1387.0;
+    let window_x_offset = 2560.0 - window_side;
+
+    let wb = glutin::window::WindowBuilder::new();
     let window = wb.clone()
-        .with_inner_size(glutin::dpi::LogicalSize::new(1387.0, 1387.0))
-        .with_position(glutin::dpi::LogicalPosition::new(1173.0, 0.0));
+        .with_inner_size(glutin::dpi::LogicalSize::new(window_side, window_side))
+        .with_position(glutin::dpi::LogicalPosition::new(window_x_offset, 0.0));
+
     let context = glutin::ContextBuilder::new();
+    let event_loop = glutin::event_loop::EventLoop::new();
 
     let display = glium::Display::new(window, context, &event_loop).unwrap();
 
@@ -38,7 +41,7 @@ fn main() {
     None).unwrap();
 
     let mut t: f32 = 0.0;
-    let mut delta: f32 = 0.02;
+    let delta: f32 = -0.005;
 
     // Event loop: Any changes over time are made here, except for animated shaders (I guess).
     event_loop.run(move |event, _, control_flow| {
@@ -71,9 +74,6 @@ fn main() {
         *control_flow =  glutin::event_loop::ControlFlow::WaitUntil(new_inst);
 
         t += delta;
-        if (t > std::f32::consts::PI) || (t < -std::f32::consts::PI) {
-            delta = -delta;
-        }
 
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
