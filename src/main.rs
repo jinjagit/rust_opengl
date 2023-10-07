@@ -1,18 +1,24 @@
 #[macro_use]
 extern crate glium;
 
+#[allow(unused_imports)]
+use glium::{glutin, Surface};
+
 mod shape;
 mod vertex_shader;
 mod fragment_shader;
 
 fn main() {
-    #[allow(unused_imports)]
-    use glium::{glutin, Surface};
-
     let event_loop = glutin::event_loop::EventLoop::new();
     let wb = glutin::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    
+    // Size and position are custom hardcoded values for my screen. DPI seems off as sizes below my screen resolution.
+    let window = wb.clone()
+        .with_inner_size(glutin::dpi::LogicalSize::new(1387.0, 1387.0))
+        .with_position(glutin::dpi::LogicalPosition::new(1173.0, 0.0));
+    let context = glutin::ContextBuilder::new();
+
+    let display = glium::Display::new(window, context, &event_loop).unwrap();
 
     let shape = shape::shape();
 
@@ -25,11 +31,16 @@ fn main() {
     let vertex_shader_src = vertex_shader::vertex_shader_src();
     let fragment_shader_src = fragment_shader::fragment_shader_src();
 
-    let program = glium::Program::from_source(&display, vertex_shader_src.as_str(), fragment_shader_src.as_str(), None).unwrap();
+    let program = glium::Program::from_source(
+        &display,
+        vertex_shader_src.as_str(),
+        fragment_shader_src.as_str(),
+    None).unwrap();
 
     let mut t: f32 = 0.0;
     let mut delta: f32 = 0.02;
 
+    // Event loop: Any changes over time are made here, except for animated shaders (I guess).
     event_loop.run(move |event, _, control_flow| {
         let start_time = std::time::Instant::now();
 
