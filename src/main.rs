@@ -2,6 +2,8 @@
 extern crate glium;
 
 mod shape;
+mod vertex_shader;
+mod fragment_shader;
 
 fn main() {
     #[allow(unused_imports)]
@@ -19,30 +21,11 @@ fn main() {
 
     const TARGET_FPS: u64 = 60;
 
-    let vertex_shader_src = r#"
-        #version 140
-        in vec2 position;
-        uniform mat4 matrix;
-        out vec2 my_attr;      
+    // Using &String here, not &str as in example.
+    let vertex_shader_src = vertex_shader::vertex_shader_src();
+    let fragment_shader_src = fragment_shader::fragment_shader_src();
 
-        void main() {
-            my_attr = position; 
-            gl_Position = matrix * vec4(position, 0.0, 1.0);
-        }
-    "#;
-
-    let fragment_shader_src = r#"
-        #version 140
-
-        in vec2 my_attr;
-        out vec4 color;
-
-        void main() {
-            color = vec4(my_attr, 0.0, 1.0);   
-        }
-    "#;
-
-    let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
+    let program = glium::Program::from_source(&display, vertex_shader_src.as_str(), fragment_shader_src.as_str(), None).unwrap();
 
     let mut t: f32 = 0.0;
     let mut delta: f32 = 0.02;
