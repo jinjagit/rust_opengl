@@ -9,7 +9,11 @@ mod vertex_shader;
 mod fragment_shader;
 
 fn main() {
-    // Size and position are custom hardcoded values for my screen. DPI seems off as sizes below my screen resolution.
+    // Size and position are custom hardcoded values for my screen.
+    // Native 4k
+    // let window_side = 2106.0;
+    // let window_x_offset = 3840.0 - window_side;
+    // High scaling
     let window_side = 1387.0;
     let window_x_offset = 2560.0 - window_side;
 
