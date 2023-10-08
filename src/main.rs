@@ -33,6 +33,12 @@ fn main() {
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
+    let mut polygon_mode = "line";
+    let mut draw_params = glium::DrawParameters {
+        polygon_mode: glium::PolygonMode::Line,
+        .. Default::default()
+    };
+
     const TARGET_FPS: u64 = 60;
 
     // Using &String here, not &str as in example.
@@ -46,7 +52,7 @@ fn main() {
     None).unwrap();
 
     let mut t: f32 = 0.0;
-    let mut delta: f32 = -0.005;
+    let mut delta: f32 = -0.001;
     let mut last_delta: f32 = 0.0;
 
     // Event loop: Any changes over time are made here, except for animated shaders (I guess).
@@ -63,8 +69,8 @@ fn main() {
                     if let Some(key) = input.virtual_keycode {
                         match key {
                             glutin::event::VirtualKeyCode::A => {
-                                delta -= 0.0025;
-                                println!("Delta: {:.4}", delta);
+                                delta -= 0.001;
+                                println!("Delta: {:.3}", delta);
                             },
                             glutin::event::VirtualKeyCode::S => {
                                 if delta == 0.0 {
@@ -73,11 +79,21 @@ fn main() {
                                     last_delta = delta;
                                     delta = 0.0;
                                 }
-                                println!("Delta: {:.4}", delta);
+                                println!("Delta: {:.3}", delta);
                             },
                             glutin::event::VirtualKeyCode::D => {
-                                delta += 0.0025;
-                                println!("Delta: {:.4}", delta);
+                                delta += 0.001;
+                                println!("Delta: {:.3}", delta);
+                            },
+                            glutin::event::VirtualKeyCode::P => {
+                                // println!("Params: {:?}", params.get(&draw_parameters));
+                                if polygon_mode == "fill" {
+                                    polygon_mode = "line";
+                                    draw_params.polygon_mode = glium::PolygonMode::Line;
+                                } else {
+                                    polygon_mode = "fill";
+                                    draw_params.polygon_mode = glium::PolygonMode::Fill;
+                                }
                             },
                             _ => {}
                         }
@@ -118,7 +134,7 @@ fn main() {
         };
 
         target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                    &Default::default()).unwrap();
+                    &draw_params).unwrap();
         target.finish().unwrap();
     });
 }
