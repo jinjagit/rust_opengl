@@ -46,7 +46,8 @@ fn main() {
     None).unwrap();
 
     let mut t: f32 = 0.0;
-    let delta: f32 = -0.005;
+    let mut delta: f32 = -0.005;
+    let mut last_delta: f32 = 0.0;
 
     // Event loop: Any changes over time are made here, except for animated shaders (I guess).
     event_loop.run(move |event, _, control_flow| {
@@ -58,6 +59,30 @@ fn main() {
                     *control_flow = glutin::event_loop::ControlFlow::Exit;
                     return;
                 },
+                glutin::event::WindowEvent::KeyboardInput { input, .. } => if input.state == glutin::event::ElementState::Pressed {
+                    if let Some(key) = input.virtual_keycode {
+                        match key {
+                            glutin::event::VirtualKeyCode::A => {
+                                delta -= 0.0025;
+                                println!("Delta: {:.4}", delta);
+                            },
+                            glutin::event::VirtualKeyCode::S => {
+                                if delta == 0.0 {
+                                    delta = last_delta;
+                                } else {
+                                    last_delta = delta;
+                                    delta = 0.0;
+                                }
+                                println!("Delta: {:.4}", delta);
+                            },
+                            glutin::event::VirtualKeyCode::D => {
+                                delta += 0.0025;
+                                println!("Delta: {:.4}", delta);
+                            },
+                            _ => {}
+                        }
+                    }
+                }, 
                 _ => return,
             },
             glutin::event::Event::NewEvents(cause) => match cause {
